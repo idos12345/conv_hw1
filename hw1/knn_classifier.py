@@ -55,7 +55,7 @@ class KNNClassifier:
             # - Set y_pred[i] to the most common class among them
 
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            y_pred[i] = self.y_train[torch.argmin(dist_matrix[:, i])]
             # ========================
 
         return y_pred
@@ -84,7 +84,13 @@ class KNNClassifier:
 
         dists = torch.tensor([])
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+
+        # Compute the L2 distances
+        x_train_squared = torch.sum(self.x_train ** 2, dim=1)
+        x_test_squared = torch.sum(x_test ** 2, dim=1)
+        inner_product = torch.mm(self.x_train, x_test.T)
+        dists = x_train_squared.view(-1, 1) - 2 * inner_product + x_test_squared.view(1, -1)
+        dists = torch.sqrt(dists)
         # ========================
 
         return dists
@@ -105,7 +111,10 @@ def accuracy(y: Tensor, y_pred: Tensor) -> float:
 
     accuracy = None
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+
+    dist = (y - y_pred)
+    accuracy = torch.where(dist == 0, 1, 0).sum() / len(y)
+
     # ========================
 
     return accuracy

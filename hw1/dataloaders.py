@@ -1,8 +1,20 @@
 from typing import Tuple
-
+import random
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
+
+
+class MySampler(torch.utils.data.Sampler):
+    def __init__(self, data_source):
+        super(MySampler, self).__init__(data_source)
+        self.indices = list(range(len(data_source)))
+
+    def __iter__(self):
+        return iter(self.indices)
+
+    def __len__(self):
+        return len(self.indices)
 
 
 def create_train_validation_loaders(
@@ -32,7 +44,17 @@ def create_train_validation_loaders(
     #    from the dataset.
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+
+    indices = list(range(len(dataset)))
+    random.shuffle(indices)
+    split_pos = int(validation_ratio * len(dataset))
+
+    dl_valid = DataLoader(dataset=dataset, batch_size=batch_size, num_workers=num_workers,
+                          sampler=torch.utils.data.SubsetRandomSampler(
+                              indices=indices[:split_pos]))
+    dl_train = DataLoader(dataset=dataset, batch_size=batch_size, num_workers=num_workers,
+                          sampler=torch.utils.data.SubsetRandomSampler(
+                              indices=indices[split_pos:]))
     # ========================
 
     return dl_train, dl_valid

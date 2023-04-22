@@ -55,7 +55,10 @@ class KNNClassifier:
             # - Set y_pred[i] to the most common class among them
 
             # ====== YOUR CODE: ======
-            y_pred[i] = self.y_train[torch.argmin(dist_matrix[:, i])]
+
+            _, indices = torch.topk(dist_matrix[:, i], self.k, largest=False)
+            y_lst = [self.y_train[index] for index in indices]
+            y_pred[i] = max(set(y_lst), key=y_lst.count)
             # ========================
 
         return y_pred
@@ -113,7 +116,7 @@ def accuracy(y: Tensor, y_pred: Tensor) -> float:
     # ====== YOUR CODE: ======
 
     dist = (y - y_pred)
-    accuracy = torch.where(dist == 0, 1, 0).sum() / len(y)
+    accuracy = torch.where(dist == 0, 1, 0).sum() / len(dist)
 
     # ========================
 
@@ -131,12 +134,11 @@ def find_best_k(ds_train: Dataset, k_choices: Sequence[int], num_folds: int) -> 
         best_k: the value of k with the highest mean accuracy across folds
         accuracies: The accuracies per fold for each k (list of lists).
     """
-
     accuracies = []
 
     for i, k in enumerate(k_choices):
         model = KNNClassifier(k)
-
+        print(f"current k {k}")
         # TODO: Train model num_folds times with different train/val data.
         # Don't use any third-party libraries.
         # You can use your train/validation splitter from part 1 (even if
@@ -144,7 +146,16 @@ def find_best_k(ds_train: Dataset, k_choices: Sequence[int], num_folds: int) -> 
         # different split each iteration), or implement something else.
 
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        current_accuracy = np.zeros(num_folds)
+
+        for k_fold in range(num_folds):
+            current_train, current_validation = dataloaders.create_train_validation_loaders(ds_train,
+                                                                                            1 / num_folds)
+            model.train(current_train)
+            x_val, y_val = dataloader_utils.flatten(current_validation)
+            current_accuracy[k_fold] = accuracy(model.predict(x_val), y_val)
+        accuracies.append(current_accuracy)
+
         # ========================
 
     best_k_idx = np.argmax([np.mean(acc) for acc in accuracies])

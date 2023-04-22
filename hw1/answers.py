@@ -10,6 +10,11 @@ math (delimited with $$).
 
 part2_q1 = r"""
 **Your answer:**
+Increasing k on our case improved generaliztion for unseen data until k=5, for k > 5
+increasing k leaded to decreasing of the accuracy.
+We can assume that ~5 closest neighbors of most of the test samples placed close enough to indicates the label
+of the test sample while using bigger k pushed far and unrelated "neighbors" to the prediction which led to 
+lower accuracy on unseen data. 
 
 
 Write your answer using **markdown** and $\LaTeX$:

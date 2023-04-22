@@ -24,7 +24,7 @@ class LinearClassifier:
 
         self.weights = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.weights = torch.normal(0, weight_std, size=(n_features, n_classes))
         # ========================
 
     def predict(self, x: Tensor) -> Tuple[Tensor, Tensor]:
@@ -45,7 +45,8 @@ class LinearClassifier:
 
         y_pred, class_scores = None, None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        class_scores = torch.mm(x, self.weights)
+        y_pred = torch.argmax(class_scores, dim=1)
         # ========================
 
         return y_pred, class_scores
@@ -67,7 +68,7 @@ class LinearClassifier:
 
         acc = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        acc = torch.sum(y == y_pred) / y.size(0)
         # ========================
 
         return acc * 100
@@ -104,7 +105,26 @@ class LinearClassifier:
             average_loss = 0
 
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            for data, labels in dl_train:
+                pred, scores = self.predict(data)
+                W = self.weights
+                loss = loss_fn.loss(data, labels, scores, pred) + (weight_decay/2) * torch.sum(W ** 2)
+                grad = loss_fn.grad() + weight_decay * W
+                self.weights = W - learn_rate * grad
+                average_loss += loss
+                total_correct += self.evaluate_accuracy(labels, pred)
+            train_res.accuracy.append(total_correct / len(dl_train))
+            train_res.loss.append(average_loss / len(dl_train))
+
+            total_correct = 0
+            average_loss = 0
+            for data, labels in dl_valid:
+                pred, scores = self.predict(data)
+                loss = loss_fn.loss(data, labels, scores, pred) + (weight_decay/2) * torch.sum(W * W)
+                average_loss += loss
+                total_correct += self.evaluate_accuracy(labels, pred)
+            valid_res.accuracy.append(total_correct / len(dl_valid))
+            valid_res.loss.append(average_loss / len(dl_valid))
             # ========================
             print('.', end='')
 
@@ -124,7 +144,10 @@ class LinearClassifier:
         # The output shape should be (n_classes, C, H, W).
 
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        W = self.weights
+        if has_bias:
+            W = W[:-1]
+        w_images = W.T.reshape((self.n_classes, ) + img_shape)
         # ========================
 
         return w_images

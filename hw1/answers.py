@@ -65,28 +65,23 @@ That's because the train loss graph is under the test loss and the train accurac
 
 part4_q1 = r"""
 **Your answer:**
+The ideal pattern will be that all the samples are placed on the 0 horizontal line,
+this means that for each sample y=y_hat -> perfect prediction.
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+From the plots we can see the using non-linear features improves the prediction significantly,
+the mse and rs5 improved for the cv-based train.
 
 """
 
 part4_q2 = r"""
 **Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+1. 
+Using logspace gives us wider range of lambdas, since the most suitable lambda can be on a large range it is more 
+appropriate to use log range (to keep the calculation feasible).
+2.
+We have 3 choices for degree, 20 choices for lambda value 
+after setting the hyper parameters we fit each model to 3 training sets (due to the usage of kfold with k=3).
+The overall trainings sessions equals to 3*20*3=180
 """
 
 # ==============

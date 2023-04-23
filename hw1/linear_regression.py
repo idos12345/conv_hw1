@@ -85,13 +85,13 @@ class BostonFeaturesTransformer(BaseEstimator, TransformerMixin):
     """
     Generates custom features for the Boston dataset.
     """
+
     def __init__(self, degree=2):
         self.degree = degree
-
         # TODO: Your custom initialization, if needed
         # Add any hyperparameters you need and save them as above
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.poly_features = PolynomialFeatures(2)
         # ========================
 
     def fit(self, X, y=None):
@@ -113,7 +113,8 @@ class BostonFeaturesTransformer(BaseEstimator, TransformerMixin):
 
         X_transformed = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+
+        X_transformed = self.poly_features.fit_transform(X)
         # ========================
 
         return X_transformed
@@ -139,7 +140,7 @@ def top_correlated_features(df: DataFrame, target_feature, n=5):
     # ====== YOUR CODE: ======
     cov_mat = df.corr()
     corr_abs = cov_mat.abs()[target_feature]
-    indices = corr_abs.argsort().tail(n+1)[:-1][::-1]
+    indices = corr_abs.argsort().tail(n + 1)[:-1][::-1]
     top_n_features = df.keys()[indices]
     top_n_corr = cov_mat[target_feature][indices]
     # ========================
@@ -175,7 +176,17 @@ def cv_best_hyperparams(model: BaseEstimator, X, y, k_folds,
     # - You can use MSE or R^2 as a score.
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+
+    # Initialize k-fold cross-validation
+    kf = sklearn.model_selection.KFold(n_splits=k_folds)
+    # Initialize grid search for hyperparameter optimization
+    param_grid = {'linearregressor__reg_lambda': lambda_range, 'bostonfeaturestransformer__degree': degree_range}
+    grid_search = sklearn.model_selection.GridSearchCV(estimator=model, param_grid=param_grid, cv=kf, scoring="r2")
+
+    grid_search.fit(X, y)
+    best_params = grid_search.best_params_
+
+    # Return the dictionary of results
     # ========================
 
     return best_params

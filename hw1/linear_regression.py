@@ -139,7 +139,7 @@ def top_correlated_features(df: DataFrame, target_feature, n=5):
     # ====== YOUR CODE: ======
     cov_mat = df.corr()
     corr_abs = cov_mat.abs()[target_feature]
-    indices = corr_abs.argsort().tail(n+1)[:-1]
+    indices = corr_abs.argsort().tail(n+1)[:-1][::-1]
     top_n_features = df.keys()[indices]
     top_n_corr = cov_mat[target_feature][indices]
     # ========================
